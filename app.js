@@ -34,6 +34,27 @@ app.get('/', async (_, res) => {
   res.render('index', { pizzas: pizzas });
 });
 
+app.get('/cart', async (_, res) => {
+  let cartItems = await cartModel.find();
+  res.render('cart', { cartItems: cartItems });
+});
+
+app.get('/updatecart', async (req, res) => {
+  let { _id, quantity } = req.query;
+  let totalItems = 0;
+  let totalPrice = 0;
+  let item = await cartModel.findByIdAndUpdate(
+    { _id: _id },
+    { quantity: quantity }
+  );
+  let cart = await cartModel.find();
+  cart.forEach(item => {
+    totalItems += item.quantity;
+    totalPrice += item.pizza.price * item.quantity;
+  });
+  res.send({ totalItems, totalPrice });
+});
+
 app.get('/addtocart', async (req, res) => {
   let _id = req.query._id;
   let pizza = await pizzaModel.findById(_id);
