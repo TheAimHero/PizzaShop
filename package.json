@@ -1,0 +1,26 @@
+{
+  "name": "personal_website",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "nodemon": "nodemon app.js"
+  },
+  "author": "",
+  "type": "module",
+  "license": "ISC",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.4.0",
+    "body-parser": "^1.20.2",
+    "bootstrap": "^5.2.3",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "jquery": "^3.6.4",
+    "lodash": "^4.17.21",
+    "mongodb": "^5.3.0",
+    "mongoose": "^7.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}

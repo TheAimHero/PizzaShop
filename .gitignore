@@ -1,0 +1,5 @@
+node_modules/
+Session.vim
+package-lock.json
+.prettierrc
+nodemon.json
