@@ -29,11 +29,10 @@ let maxPages = pizzas_chunk.length - 1;
 let pageNumber = 0;
 
 function addListners(btn) {
-  console.log('adding listners', btn);
   btn.on('click', async e => {
     let data = e.target.closest('button').dataset._id;
-    console.log(data);
-    jQuery.ajax('http://localhost:3000/addtocart', {
+    jQuery.ajax('http://localhost:3000/cart', {
+      method: 'POST',
       data: { _id: data },
     });
   });
