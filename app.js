@@ -34,42 +34,43 @@ app.get('/', async (_, res) => {
   res.render('index', { pizzas: pizzas });
 });
 
-app.get('/cart', async (_, res) => {
-  let cartItems = await cartModel.find();
-  res.render('cart', { cartItems: cartItems });
-});
-
-app.get('/updatecart', async (req, res) => {
-  let { _id, quantity } = req.query;
-  let totalItems = 0;
-  let totalPrice = 0;
-  let item = await cartModel.findByIdAndUpdate(
-    { _id: _id },
-    { quantity: quantity }
-  );
-  let cart = await cartModel.find();
-  cart.forEach(item => {
-    totalItems += item.quantity;
-    totalPrice += item.pizza.price * item.quantity;
+app
+  .route('/cart')
+  .get(async (_, res) => {
+    let cartItems = await cartModel.find();
+    res.render('cart', { cartItems: cartItems });
+  })
+  .put(async (req, res) => {
+    let { _id, quantity } = req.body;
+    let totalItems = 0;
+    let totalPrice = 0;
+    if (quantity != 0) {
+      await cartModel.findByIdAndUpdate({ _id: _id }, { quantity: quantity });
+    } else {
+      console.log('deleting item from db');
+      await cartModel.deleteOne({ _id: req.body._id });
+    }
+    let cart = await cartModel.find();
+    cart.forEach(item => {
+      totalItems += item.quantity;
+      totalPrice += item.pizza.price * item.quantity;
+    });
+    res.send({ totalItems, totalPrice });
+  })
+  .post(async (req, res) => {
+    let _id = req.body._id;
+    let pizza = await pizzaModel.findById(_id);
+    let cartItem = await cartModel.find({ 'pizza._id': _id });
+    cartItem = cartItem[0];
+    if (!cartItem) {
+      cartItem = new cartModel({ pizza: pizza, quantity: 1 });
+      cartItem.save();
+    } else {
+      cartItem.quantity++;
+      cartItem.save();
+    }
+    res.send();
   });
-  res.send({ totalItems, totalPrice });
-});
-
-app.get('/addtocart', async (req, res) => {
-  let _id = req.query._id;
-  let pizza = await pizzaModel.findById(_id);
-  let cartItem = await cartModel.find({ 'pizza._id': _id });
-  cartItem = cartItem[0];
-  if (!cartItem) {
-    cartItem = new cartModel({ pizza: pizza, quantity: 1 });
-    cartItem.save();
-  } else {
-    cartItem.quantity++;
-    cartItem.save();
-    console.log(cartItem);
-  }
-  res.send();
-});
 
 app.listen(3000, () => {
   console.log('Listening at port 3000');

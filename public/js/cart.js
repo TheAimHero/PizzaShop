@@ -7,45 +7,48 @@ function addListeners() {
   const btnItems = $('.btn-items');
   btnItems.on('click', e => {
     let target = e.target;
-    console.log(e.target);
     let targetParent = e.target.closest('.cart-item');
     let curItem = targetParent.querySelector('.btn-cur');
     let itemAmt = Number(curItem.textContent);
     let itemPrice = Number(
       targetParent.querySelector('.item-price').textContent
     );
+    console.log(target);
     if (target.classList.contains('btn-add')) {
       curItem.textContent = itemAmt + 1;
       itemAmt++;
       targetParent.querySelector('.btn-sub').removeAttribute('disabled');
-      updateQuantity(targetParent.dataset._id, itemAmt);
-      updateCart(targetParent, itemAmt, itemPrice);
-      console.log('Incrementing item count', itemAmt);
+      updateCart(targetParent.dataset._id, itemAmt);
+      updateItem(targetParent, itemAmt, itemPrice);
     } else if (target.classList.contains('btn-sub') && itemAmt > 1) {
       curItem.textContent = itemAmt - 1;
       itemAmt--;
       //prettier-ignore
       if (itemAmt == 1) targetParent.querySelector('.btn-sub').setAttribute('disabled', 'true');
-      updateQuantity(targetParent.dataset._id, itemAmt);
-      updateCart(targetParent, itemAmt, itemPrice);
-      console.log('Decrementing item count', itemAmt);
+      updateCart(targetParent.dataset._id, itemAmt);
+      updateItem(targetParent, itemAmt, itemPrice);
+    } else if (target.classList.contains('btn-del')) {
+      console.log('remove item from db');
+      updateCart(targetParent.dataset._id, 0);
+      targetParent.remove();
     }
   });
 }
 
-function updateCart(target, quantity, price) {
+function updateItem(target, quantity, price) {
   target.querySelector('.total-price').textContent = ` = Rs. ${
     price * quantity
   }`;
   target.querySelector('.item-quantity').textContent = quantity;
 }
 
-async function updateQuantity(id, quantity) {
-  let { totalItems, totalPrice } = await jQuery.ajax(url + '/updatecart', {
+async function updateCart(id, quantity) {
+  let { totalItems, totalPrice } = await jQuery.ajax(url + '/cart', {
+    method: 'PUT',
     data: { _id: id, quantity: quantity },
   });
   let cartInfo = $('.cart-info')[0];
-  cartInfo.innerHTML = '';
+  cartInfo.outerHTML = '';
   list.insertAdjacentHTML(
     'afterend',
     `<div class="col-lg-4 text-center mt-3 fs-3 cart-info">
@@ -53,7 +56,6 @@ async function updateQuantity(id, quantity) {
       <div>Rs. ${totalPrice}</div>
     </div>`
   );
-  cartInfo.innerHTML = html;
 }
 
 function renderCart() {
@@ -76,6 +78,11 @@ function renderCart() {
               <p class="card-text"><small class="text-body-secondary">${
                 ele.pizza.restaurent
               }</small></p>
+              <div class="d-flex justify-content-center">
+                <button type="button" class="btn bg-dark btn-items btn-del float-end btn-secondary btn-circle btn-circle-sm m-2">
+                <i class="fa-solid fa-trash-can text-center text-light btn-del fa-lg"></i>
+                </button>
+              </div>
             </div>
           </div>
           <div class="col-md-3">
